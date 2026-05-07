@@ -1,0 +1,19 @@
+{
+  "name": "MyGoal — Expense & Savings",
+  "subtitle_ios": "Beautiful offline money tracker",
+  "shortDescription_play": "Track expenses, hit savings goals. 100% offline. Beautiful dark UI.",
+  "promoText_ios": "A spending heatmap, smart spike alerts, and a forecast that tells you when you'll hit your goal.",
+  "fullDescription": "MyGoal is a beautiful, fast, offline-first money tracker built for people who want clarity — not a bank app.\n\n• Log an expense, income, or save in under 5 seconds with the custom number pad.\n• Multiple wallets — Cash, Card, Savings — tracked separately and combined.\n• Spending heatmap — see your whole month at a glance, like a contributions graph for your money.\n• Smart insights — spike alerts when a category jumps, monthly comparison vs last month, and a saving forecast that projects when you'll hit each goal.\n• Goals with visual progress and a projected completion date.\n• Weekly summary push every Sunday so you never lose track.\n• 100% offline — your data never leaves your device. Export anytime as CSV or JSON.\n• MKD by default, with EUR and USD display options.\n\nNo accounts. No ads. No bank connections. No tracking.",
+  "keywords_ios": "expenses,budget,savings,goals,money,tracker,offline,personal finance,heatmap,wallet",
+  "category_ios_primary": "Finance",
+  "category_ios_secondary": "Productivity",
+  "category_play": "FINANCE",
+  "contentRating": "4+",
+  "supportUrl": "https://github.com/vinnielata/mygoal",
+  "marketingUrl": "https://github.com/vinnielata/mygoal",
+  "privacyPolicyUrl": "https://vinnielata.github.io/mygoal/privacy",
+  "copyright": "© 2026 Vinnie Lata",
+  "review_notes": "MyGoal is fully offline and requires no account. Sample data is seeded on first launch so reviewers can immediately see the dashboard, heatmap, goals, and insights without entering data. To trigger the weekly notification: Settings → Weekly summary → Send test notification.",
+  "demo_account": "Not required. App has no login.",
+  "release_notes_v1": "Initial release.\n• Dashboard with ring chart and wallet overview\n• Multi-wallet expense / income / savings logging\n• Spending heatmap calendar\n• Goals with saving forecast\n• Insights with spike alerts and monthly comparison\n• Weekly Sunday summary notification\n• CSV / JSON export\n• MKD / EUR / USD display"
+}

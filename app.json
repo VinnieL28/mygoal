@@ -1,0 +1,60 @@
+{
+  "expo": {
+    "name": "MyGoal",
+    "slug": "mygoal",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "primaryColor": "#F5C842",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#0B0F1A"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.vinnielata.mygoal",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "MyGoal attaches photos to expense entries you create. Photos stay on your device.",
+        "NSCameraUsageDescription": "MyGoal uses the camera to attach photos to expense entries you create. Photos stay on your device."
+      }
+    },
+    "android": {
+      "package": "com.vinnielata.mygoal",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#0B0F1A"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./public/icon.svg",
+      "name": "MyGoal",
+      "shortName": "MyGoal",
+      "themeColor": "#0B0F1A",
+      "backgroundColor": "#0B0F1A",
+      "display": "standalone",
+      "orientation": "portrait"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "color": "#F5C842",
+          "defaultChannel": "weekly-summary"
+        }
+      ],
+      "expo-file-system",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "MyGoal attaches photos to expense entries you create.",
+          "cameraPermission": "MyGoal uses the camera to attach photos to expense entries you create."
+        }
+      ],
+      "expo-asset"
+    ]
+  }
+}
