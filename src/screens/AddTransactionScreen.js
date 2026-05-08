@@ -164,32 +164,59 @@ export default function AddTransactionScreen({ navigation, route }) {
 
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl }}
+        contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl, maxWidth: 640, width: '100%', alignSelf: 'center' }}
         showsVerticalScrollIndicator={false}
       >
         <KindToggle value={kind} onChange={setKind} />
 
-        <View style={styles.amountWrap}>
-          <Text style={[typography.caption, { textAlign: 'center' }]}>
-            {kind === 'savings' ? 'Saving' : kind === 'income' ? 'Income' : 'Expense'} · {currency}
-          </Text>
-          <Animated.Text
-            style={[
-              styles.amountText,
-              { color: accent, transform: [{ scale: amountPulse }] },
-            ]}
-            numberOfLines={1}
-            adjustsFontSizeToFit
-          >
-            {formatAmount(amountNum, currency)}
-          </Animated.Text>
-          <Text style={[typography.bodyMuted, { textAlign: 'center', fontSize: 12 }]}>
-            tap numbers below to enter
-          </Text>
-        </View>
+        {Platform.OS === 'web' ? (
+          <View style={styles.webAmount}>
+            <Text style={typography.caption}>
+              {kind === 'savings' ? 'Saving' : kind === 'income' ? 'Income' : 'Expense'} · {currency}
+            </Text>
+            <TextInput
+              style={[styles.webAmountInput, { color: accent }]}
+              value={amountStr === '0' ? '' : amountStr}
+              onChangeText={(v) => {
+                const cleaned = v.replace(/[^0-9.]/g, '');
+                const parts = cleaned.split('.');
+                const safe = parts.length > 2
+                  ? `${parts[0]}.${parts.slice(1).join('')}`
+                  : cleaned;
+                setAmountStr(safe || '0');
+              }}
+              placeholder="0"
+              placeholderTextColor={colors.textFaint}
+              keyboardType="decimal-pad"
+              autoFocus
+              selectTextOnFocus
+            />
+          </View>
+        ) : (
+          <View style={styles.amountWrap}>
+            <Text style={[typography.caption, { textAlign: 'center' }]}>
+              {kind === 'savings' ? 'Saving' : kind === 'income' ? 'Income' : 'Expense'} · {currency}
+            </Text>
+            <Animated.Text
+              style={[
+                styles.amountText,
+                { color: accent, transform: [{ scale: amountPulse }] },
+              ]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
+              {formatAmount(amountNum, currency)}
+            </Animated.Text>
+          </View>
+        )}
 
         <SectionLabel>Wallet</SectionLabel>
         <WalletPicker wallets={wallets} value={walletId} onChange={setWalletId} />
+        {wallets.length === 0 && (
+          <Text style={[typography.bodyMuted, { fontSize: 12, marginTop: 6 }]}>
+            No wallets yet — create one first from Dashboard › Manage.
+          </Text>
+        )}
 
         {kind === 'expense' && (
           <>
@@ -213,31 +240,38 @@ export default function AddTransactionScreen({ navigation, route }) {
             maxLength={120}
             returnKeyType="done"
           />
-          <Pressable onPress={pickPhoto} style={styles.photoBtn}>
-            <Ionicons
-              name={photo ? 'image' : 'image-outline'}
-              size={20}
-              color={photo ? colors.gold : colors.textMuted}
-            />
-          </Pressable>
+          {Platform.OS !== 'web' && (
+            <Pressable onPress={pickPhoto} style={styles.photoBtn}>
+              <Ionicons
+                name={photo ? 'image' : 'image-outline'}
+                size={20}
+                color={photo ? colors.gold : colors.textMuted}
+              />
+            </Pressable>
+          )}
         </View>
 
         {photo && (
           <View style={styles.photoPreview}>
             <Image source={{ uri: photo }} style={styles.photoImg} />
-            <Pressable
-              onPress={() => setPhoto(null)}
-              style={styles.photoClear}
-              hitSlop={10}
-            >
+            <Pressable onPress={() => setPhoto(null)} style={styles.photoClear} hitSlop={10}>
               <Ionicons name="close" size={16} color={colors.text} />
             </Pressable>
           </View>
         )}
 
-        <View style={{ height: spacing.lg }} />
+        {Platform.OS !== 'web' && (
+          <>
+            <View style={{ height: spacing.lg }} />
+            <Numpad onKey={onKey} />
+          </>
+        )}
 
-        <Numpad onKey={onKey} />
+        {(!amountValid || !walletId) && (
+          <Text style={[typography.bodyMuted, { fontSize: 12, textAlign: 'center', marginTop: spacing.md }]}>
+            {!amountValid ? 'Enter an amount' : 'Pick a wallet'} to continue
+          </Text>
+        )}
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
@@ -291,6 +325,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  webAmount: {
+    backgroundColor: colors.bgElevated,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.borderSoft,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    marginVertical: spacing.lg,
+  },
+  webAmountInput: {
+    fontSize: 36,
+    fontWeight: '700',
+    letterSpacing: -0.8,
+    fontVariant: ['tabular-nums'],
+    paddingVertical: 8,
+    color: colors.text,
+    outlineStyle: 'none',
   },
   amountWrap: {
     alignItems: 'center',
