@@ -1,5 +1,5 @@
-const CACHE = 'mygoal-v1';
-const PRECACHE = ['/', '/manifest.webmanifest', '/icon.svg', '/icon-maskable.svg'];
+const CACHE = 'mygoal-__BUILD__';
+const PRECACHE = ['/manifest.webmanifest', '/icon.svg', '/icon-maskable.svg'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)).catch(() => {}));
@@ -20,10 +20,9 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // Network-first for navigation, cache fallback for offline
-  if (req.mode === 'navigate') {
+  if (req.mode === 'navigate' || url.pathname === '/' || url.pathname.endsWith('/index.html')) {
     event.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-store' })
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put(req, copy));
@@ -34,17 +33,31 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first for static assets
+  if (url.pathname.startsWith('/_expo/static/')) {
+    event.respondWith(
+      caches.match(req).then((cached) => {
+        if (cached) return cached;
+        return fetch(req).then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
+          return res;
+        });
+      }),
+    );
+    return;
+  }
+
   event.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) return cached;
-      return fetch(req).then((res) => {
-        if (res.ok && (url.pathname.startsWith('/_expo/') || /\.(?:js|css|svg|png|woff2?|ttf|json)$/i.test(url.pathname))) {
+    fetch(req)
+      .then((res) => {
+        if (res.ok && /\.(?:svg|png|woff2?|ttf|json|webmanifest)$/i.test(url.pathname)) {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put(req, copy));
         }
         return res;
-      });
-    }),
+      })
+      .catch(() => caches.match(req)),
   );
 });

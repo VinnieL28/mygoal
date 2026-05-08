@@ -20,6 +20,7 @@ import SettingsScreen from '../screens/SettingsScreen';
 import BillsScreen from '../screens/BillsScreen';
 import BillFormScreen from '../screens/BillFormScreen';
 import MonthlyOverviewScreen from '../screens/MonthlyOverviewScreen';
+import PinSetupScreen from '../screens/PinSetupScreen';
 import AddTabButton from '../components/AddTabButton';
 
 const Tab = createBottomTabNavigator();
@@ -133,6 +134,11 @@ export default function RootNavigator() {
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
         <Stack.Screen name="MonthlyOverview" component={MonthlyOverviewScreen} />
+        <Stack.Screen
+          name="PinSetup"
+          component={PinSetupScreen}
+          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

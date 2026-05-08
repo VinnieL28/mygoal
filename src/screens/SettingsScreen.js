@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
 
 import { colors, radius, spacing, typography, shadow } from '../theme/theme';
@@ -28,6 +28,7 @@ import {
 import { exportCSV, exportJSON } from '../utils/exporter';
 import { wipeAllData } from '../db/db';
 import { appConfirm } from '../utils/confirm';
+import { hasPin } from '../utils/pin';
 
 const TIME_OPTIONS = [
   { id: '09:00', label: '9:00 AM',  hour: 9,  minute: 0 },
@@ -46,6 +47,13 @@ export default function SettingsScreen() {
   const [hour, setHour] = useState(19);
   const [minute, setMinute] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [pinSet, setPinSet] = useState(false);
+
+  const reloadPin = useCallback(async () => {
+    setPinSet(await hasPin());
+  }, []);
+
+  useFocusEffect(useCallback(() => { reloadPin(); }, [reloadPin]));
 
   useEffect(() => {
     (async () => {
@@ -119,11 +127,19 @@ export default function SettingsScreen() {
             cancelBillReminders().catch(() => {}),
           ]);
           await wipeAllData();
+          if (Platform.OS === 'web' && typeof window !== 'undefined') {
+            try { window.localStorage.clear(); } catch {}
+            try {
+              if ('caches' in window) {
+                const keys = await window.caches.keys();
+                await Promise.all(keys.map((k) => window.caches.delete(k)));
+              }
+            } catch {}
+            window.location.replace('/');
+            return;
+          }
           await refresh();
           setEnabled(false);
-          if (Platform.OS === 'web' && typeof window !== 'undefined') {
-            window.alert('All data has been reset.');
-          }
           navigation.goBack();
         } catch (e) {
           Alert.alert('Reset failed', String(e?.message || e));
@@ -177,6 +193,33 @@ export default function SettingsScreen() {
           <CurrencyToggle value={currency} onChange={setCurrency} />
         </View>
 
+        <SectionTitle icon="lock-closed" title="App lock" />
+        <View style={[styles.card, shadow.card]}>
+          <View style={styles.rowSplit}>
+            <View style={{ flex: 1, paddingRight: spacing.md }}>
+              <Text style={typography.body}>{pinSet ? 'PIN is set' : 'No PIN'}</Text>
+              <Text style={[typography.bodyMuted, { fontSize: 12, marginTop: 2 }]}>
+                {pinSet
+                  ? 'MyGoal locks every time you open it.'
+                  : 'Set a 6-digit PIN to keep your money private.'}
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => navigation.navigate('PinSetup')}
+              style={[styles.pinBtn, pinSet ? styles.pinBtnSecondary : null]}
+            >
+              <Text style={[
+                typography.label,
+                { color: pinSet ? colors.text : colors.bg, fontSize: 13 },
+              ]}>
+                {pinSet ? 'Change' : 'Set PIN'}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {Platform.OS !== 'web' && (
+        <>
         <SectionTitle icon="notifications" title="Weekly summary" />
         <View style={[styles.card, shadow.card]}>
           <View style={styles.rowSplit}>
@@ -230,6 +273,8 @@ export default function SettingsScreen() {
             </>
           )}
         </View>
+        </>
+        )}
 
         <SectionTitle icon="download" title="Export data" />
         <View style={[styles.card, shadow.card]}>
@@ -277,8 +322,8 @@ export default function SettingsScreen() {
         <SectionTitle icon="information-circle" title="About" />
         <View style={[styles.card]}>
           <Row label="Version" value="1.0.0" />
-          <Row label="Storage" value="On-device SQLite" />
-          <Row label="Privacy" value="100% offline" last />
+          <Row label="Storage" value={Platform.OS === 'web' ? 'Browser local storage' : 'On-device storage'} />
+          <Row label="Privacy" value={Platform.OS === 'web' ? 'Stays in your browser' : '100% offline'} last />
         </View>
       </ScrollView>
     </View>
@@ -383,6 +428,19 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  pinBtn: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: 10,
+    borderRadius: radius.pill,
+    backgroundColor: colors.gold,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pinBtnSecondary: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   resetBtn: {
     flexDirection: 'row',
