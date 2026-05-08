@@ -162,6 +162,26 @@ export default function AddTransactionScreen({ navigation, route }) {
         <View style={{ width: 36 }} />
       </View>
 
+      {wallets.length === 0 ? (
+        <View style={styles.noWalletWrap}>
+          <Ionicons name="wallet-outline" size={32} color={colors.textFaint} />
+          <Text style={[typography.h2, { marginTop: spacing.md, textAlign: 'center' }]}>
+            Create a wallet first
+          </Text>
+          <Text style={[typography.bodyMuted, { textAlign: 'center', marginTop: 4, fontSize: 13 }]}>
+            A wallet is where the money lives — Cash, Bank Card, Store register, etc. Make at least one to start logging.
+          </Text>
+          <Pressable
+            onPress={() => navigation.replace('WalletForm', {})}
+            style={styles.noWalletCta}
+          >
+            <Ionicons name="add" size={16} color={colors.bg} />
+            <Text style={[typography.label, { color: colors.bg, marginLeft: 6, fontSize: 13 }]}>
+              Create wallet
+            </Text>
+          </Pressable>
+        </View>
+      ) : (
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl, maxWidth: 640, width: '100%', alignSelf: 'center' }}
@@ -273,7 +293,9 @@ export default function AddTransactionScreen({ navigation, route }) {
           </Text>
         )}
       </ScrollView>
+      )}
 
+      {wallets.length > 0 && (
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
         <Pressable
           onPress={save}
@@ -290,6 +312,7 @@ export default function AddTransactionScreen({ navigation, route }) {
           </Text>
         </Pressable>
       </View>
+      )}
 
       <SaveSuccess
         visible={showSuccess}
@@ -325,6 +348,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  noWalletWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xl,
+    maxWidth: 480,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  noWalletCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.gold,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    borderRadius: radius.md,
+    marginTop: spacing.xl,
   },
   webAmount: {
     backgroundColor: colors.bgElevated,

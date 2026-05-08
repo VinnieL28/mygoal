@@ -81,6 +81,24 @@ export default function DashboardScreen() {
         }}
         showsVerticalScrollIndicator={false}
       >
+        {ready && wallets.length === 0 && (
+          <View style={styles.setupCard}>
+            <Ionicons name="wallet-outline" size={20} color={colors.gold} />
+            <View style={{ flex: 1, marginHorizontal: spacing.md }}>
+              <Text style={typography.body}>Set up your first wallet</Text>
+              <Text style={[typography.bodyMuted, { fontSize: 12, marginTop: 2 }]}>
+                e.g. "Store register", "Personal card". Then start logging.
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => navigation.navigate('WalletForm', {})}
+              style={styles.setupBtn}
+            >
+              <Text style={[typography.label, { color: colors.bg, fontSize: 12 }]}>Create</Text>
+            </Pressable>
+          </View>
+        )}
+
         <View style={styles.heroCard}>
           <View style={styles.heroTop}>
             <Text style={typography.caption}>Total balance</Text>
@@ -307,6 +325,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  setupCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(212, 166, 64, 0.08)',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 166, 64, 0.4)',
+    padding: spacing.md,
+    marginTop: spacing.md,
+  },
+  setupBtn: {
+    backgroundColor: colors.gold,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 8,
+    borderRadius: radius.md,
   },
   heroCard: {
     marginTop: spacing.lg,
