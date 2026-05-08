@@ -30,7 +30,6 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./public/icon.svg",
       "name": "MyGoal",
       "shortName": "MyGoal",
       "themeColor": "#0B0F1A",
