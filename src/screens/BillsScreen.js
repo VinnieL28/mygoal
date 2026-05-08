@@ -29,7 +29,7 @@ import { scheduleBillReminders } from '../utils/notifications';
 export default function BillsScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const { currency, wallets } = useApp();
+  const { currency, wallets, refresh: refreshApp } = useApp();
 
   const [bills, setBills] = useState([]);
   const [month, setMonth] = useState(new Date());
@@ -53,6 +53,7 @@ export default function BillsScreen() {
     const key = monthKey(month);
     await setBillPaid(bill.id, key, !isPaid(bill, month));
     await reload();
+    await refreshApp();
     scheduleBillReminders(currency).catch(() => {});
   };
 

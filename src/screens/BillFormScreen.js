@@ -20,6 +20,7 @@ import { useApp } from '../state/AppContext';
 import { CURRENCIES, formatAmount } from '../utils/currency';
 import { createBill, deleteBill, getBill, updateBill } from '../db/db';
 import { scheduleBillReminders } from '../utils/notifications';
+import { appConfirm } from '../utils/confirm';
 
 const COLORS = ['#FFB155', '#FF6B6B', '#7FE0D4', '#5BA8FF', '#B07BFF', '#4ADE80', '#F5C842', '#FF8FB1'];
 const ICONS  = ['receipt', 'home', 'flash', 'wifi', 'water', 'phone-portrait', 'tv', 'car', 'flame', 'school', 'medkit', 'card'];
@@ -29,7 +30,7 @@ export default function BillFormScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const editingId = route.params?.id;
-  const { wallets, currency } = useApp();
+  const { wallets, currency, refresh } = useApp();
 
   const [name, setName] = useState('');
   const [amountStr, setAmountStr] = useState('');
@@ -87,6 +88,7 @@ export default function BillFormScreen() {
         });
       }
       if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      await refresh();
       scheduleBillReminders(currency).catch(() => {});
       navigation.goBack();
     } catch (e) {
@@ -97,17 +99,18 @@ export default function BillFormScreen() {
 
   const onDelete = () => {
     if (!editingId) return;
-    Alert.alert('Delete bill', 'This bill will be removed.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete', style: 'destructive',
-        onPress: async () => {
-          await deleteBill(editingId);
-          scheduleBillReminders(currency).catch(() => {});
-          navigation.goBack();
-        },
+    appConfirm({
+      title: 'Delete bill',
+      message: 'This bill will be removed.',
+      confirmText: 'Delete',
+      destructive: true,
+      onConfirm: async () => {
+        await deleteBill(editingId);
+        await refresh();
+        scheduleBillReminders(currency).catch(() => {});
+        navigation.goBack();
       },
-    ]);
+    });
   };
 
   if (loading) return <View style={styles.root} />;

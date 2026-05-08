@@ -18,6 +18,7 @@ import { colors, radius, spacing, typography, shadow } from '../theme/theme';
 import { useApp } from '../state/AppContext';
 import CurrencyToggle from '../components/CurrencyToggle';
 import {
+  cancelBillReminders,
   cancelWeeklySummary,
   ensurePermissions,
   getWeeklySettings,
@@ -26,6 +27,7 @@ import {
 } from '../utils/notifications';
 import { exportCSV, exportJSON } from '../utils/exporter';
 import { wipeAllData } from '../db/db';
+import { appConfirm } from '../utils/confirm';
 
 const TIME_OPTIONS = [
   { id: '09:00', label: '9:00 AM',  hour: 9,  minute: 0 },
@@ -103,30 +105,33 @@ export default function SettingsScreen() {
   };
 
   const onReset = () => {
-    Alert.alert(
-      'Reset all data?',
-      'This permanently deletes every wallet, transaction, and goal. This cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Reset everything',
-          style: 'destructive',
-          onPress: async () => {
-            haptic();
-            setBusy(true);
-            try {
-              await wipeAllData();
-              await refresh();
-              navigation.goBack();
-            } catch (e) {
-              Alert.alert('Reset failed', String(e?.message || e));
-            } finally {
-              setBusy(false);
-            }
-          },
-        },
-      ],
-    );
+    appConfirm({
+      title: 'Reset all data?',
+      message: 'This permanently deletes every wallet, transaction, goal, and bill. This cannot be undone.',
+      confirmText: 'Reset everything',
+      destructive: true,
+      onConfirm: async () => {
+        haptic();
+        setBusy(true);
+        try {
+          await Promise.all([
+            cancelWeeklySummary().catch(() => {}),
+            cancelBillReminders().catch(() => {}),
+          ]);
+          await wipeAllData();
+          await refresh();
+          setEnabled(false);
+          if (Platform.OS === 'web' && typeof window !== 'undefined') {
+            window.alert('All data has been reset.');
+          }
+          navigation.goBack();
+        } catch (e) {
+          Alert.alert('Reset failed', String(e?.message || e));
+        } finally {
+          setBusy(false);
+        }
+      },
+    });
   };
 
   const onExport = async (kind) => {

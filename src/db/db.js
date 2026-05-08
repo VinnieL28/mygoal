@@ -241,12 +241,16 @@ function clampDay(v) {
 }
 
 export async function wipeAllData() {
-  await ensureLoaded();
-  cache.wallets = [];
-  cache.transactions = [];
-  cache.goals = [];
-  cache.bills = [];
-  cache.settings.seeded_v1 = '1';
+  cache = {
+    wallets: [],
+    transactions: [],
+    goals: [],
+    bills: [],
+    settings: {
+      seeded_v1: '1',
+      currency: cache?.settings?.currency || 'MKD',
+    },
+  };
   await commit();
 }
 

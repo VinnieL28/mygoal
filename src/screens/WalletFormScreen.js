@@ -20,6 +20,7 @@ import { useApp } from '../state/AppContext';
 import { CURRENCIES, formatAmount } from '../utils/currency';
 import { WALLET_COLORS, WALLET_ICONS, WALLET_TYPES } from '../utils/walletPresets';
 import { createWallet, deleteWallet, updateWallet } from '../db/db';
+import { appConfirm } from '../utils/confirm';
 
 export default function WalletFormScreen() {
   const insets = useSafeAreaInsets();
@@ -101,19 +102,18 @@ export default function WalletFormScreen() {
     const message = txCount > 0
       ? `This will permanently delete "${editing.name}" and ${txCount} transaction${txCount === 1 ? '' : 's'} on it.`
       : `Delete "${editing.name}"?`;
-    Alert.alert('Delete wallet', message, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteWallet(editing.id);
-          await refresh();
-          navigation.popToTop();
-          navigation.navigate('Wallets');
-        },
+    appConfirm({
+      title: 'Delete wallet',
+      message,
+      confirmText: 'Delete',
+      destructive: true,
+      onConfirm: async () => {
+        await deleteWallet(editing.id);
+        await refresh();
+        navigation.popToTop();
+        navigation.navigate('Wallets');
       },
-    ]);
+    });
   };
 
   return (

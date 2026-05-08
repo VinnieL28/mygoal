@@ -20,6 +20,7 @@ import { colors, radius, spacing, typography, shadow } from '../theme/theme';
 import { useApp } from '../state/AppContext';
 import { CURRENCIES, formatAmount } from '../utils/currency';
 import { createGoal, deleteGoal, getGoal, updateGoal } from '../db/db';
+import { appConfirm } from '../utils/confirm';
 
 const DEADLINE_PRESETS = [
   { id: 'none', label: 'No deadline', months: null },
@@ -121,18 +122,17 @@ export default function GoalFormScreen() {
 
   const onDelete = () => {
     if (!editingId) return;
-    Alert.alert('Delete goal', 'This goal will be removed.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteGoal(editingId);
-          await refresh();
-          navigation.goBack();
-        },
+    appConfirm({
+      title: 'Delete goal',
+      message: 'This goal will be removed.',
+      confirmText: 'Delete',
+      destructive: true,
+      onConfirm: async () => {
+        await deleteGoal(editingId);
+        await refresh();
+        navigation.goBack();
       },
-    ]);
+    });
   };
 
   if (loading) {
