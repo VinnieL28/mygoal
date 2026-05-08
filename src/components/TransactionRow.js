@@ -9,21 +9,19 @@ import { formatAmount } from '../utils/currency';
 
 export default function TransactionRow({ tx, currency, walletName }) {
   const cat = getCategory(tx.category);
-  const isOut = tx.kind === 'expense';
+  const isOut  = tx.kind === 'expense';
   const isSave = tx.kind === 'savings';
   const sign = isOut ? '−' : '+';
-  const amountColor = isOut ? colors.text : isSave ? colors.gold : colors.success;
+  const amountColor = isOut ? colors.danger : isSave ? colors.gold : colors.success;
 
   return (
     <View style={styles.row}>
-      <View style={[styles.iconWrap, { backgroundColor: hexA(cat.color, 0.18) }]}>
-        <Ionicons name={cat.icon} size={18} color={cat.color} />
-      </View>
+      <Ionicons name={cat.icon} size={14} color={colors.textMuted} style={{ width: 18 }} />
       <View style={styles.middle}>
         <Text style={typography.body} numberOfLines={1}>
           {tx.note?.trim() ? tx.note : cat.label}
         </Text>
-        <Text style={[typography.bodyMuted, { fontSize: 12 }]} numberOfLines={1}>
+        <Text style={[typography.bodyMuted, { fontSize: 11 }]} numberOfLines={1}>
           {cat.label}{walletName ? ` · ${walletName}` : ''} · {format(new Date(tx.occurred_at), 'MMM d')}
         </Text>
       </View>
@@ -34,34 +32,18 @@ export default function TransactionRow({ tx, currency, walletName }) {
   );
 }
 
-function hexA(hex, alpha) {
-  const h = hex.replace('#', '');
-  const bigint = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
-  const r = (bigint >> 16) & 255;
-  const g = (bigint >> 8) & 255;
-  const b = bigint & 255;
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing.md,
+    paddingVertical: 10,
     paddingHorizontal: spacing.md,
     backgroundColor: colors.bgElevated,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.borderSoft,
-    marginBottom: spacing.sm,
+    marginBottom: 6,
     gap: spacing.md,
-  },
-  iconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   middle: { flex: 1 },
 });

@@ -31,11 +31,12 @@ import SaveSuccess from '../components/SaveSuccess';
 
 const SAVINGS_CATEGORY = CATEGORIES.find((c) => c.id === 'savings');
 
-export default function AddTransactionScreen({ navigation }) {
+export default function AddTransactionScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
   const { wallets, currency, refresh } = useApp();
 
-  const [kind, setKind] = useState('expense');
+  const initialKind = route?.params?.kind || 'expense';
+  const [kind, setKind] = useState(initialKind);
   const [amountStr, setAmountStr] = useState('0');
   const [walletId, setWalletId] = useState(null);
   const [category, setCategory] = useState('food');

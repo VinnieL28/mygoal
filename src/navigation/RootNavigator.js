@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
-import { colors, radius, spacing } from '../theme/theme';
+import { colors, spacing } from '../theme/theme';
 
 import DashboardScreen from '../screens/DashboardScreen';
 import HistoryScreen from '../screens/HistoryScreen';
@@ -21,7 +21,6 @@ import BillsScreen from '../screens/BillsScreen';
 import BillFormScreen from '../screens/BillFormScreen';
 import MonthlyOverviewScreen from '../screens/MonthlyOverviewScreen';
 import PinSetupScreen from '../screens/PinSetupScreen';
-import AddTabButton from '../components/AddTabButton';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -35,14 +34,10 @@ const navTheme = {
     card: colors.bg,
     primary: colors.gold,
     text: colors.text,
-    border: 'transparent',
+    border: colors.border,
     notification: colors.gold,
   },
 };
-
-function PlaceholderAdd() {
-  return <View />;
-}
 
 function MainTabs() {
   return (
@@ -53,45 +48,30 @@ function MainTabs() {
         tabBarActiveTintColor: colors.gold,
         tabBarInactiveTintColor: colors.textFaint,
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: '600',
+          letterSpacing: 0.4,
           marginBottom: 4,
         },
         tabBarStyle: styles.tabBar,
         tabBarBackground: () => (
-          <View style={StyleSheet.absoluteFill}>
-            <View style={styles.tabBarBg} />
-            <View style={styles.tabBarBorder} />
-          </View>
+          <View style={[StyleSheet.absoluteFill, styles.tabBarBg]} />
         ),
         tabBarIcon: ({ color, focused }) => {
           const map = {
             Dashboard: focused ? 'home' : 'home-outline',
-            History: focused ? 'calendar' : 'calendar-outline',
-            Goals: focused ? 'flag' : 'flag-outline',
-            Insights: focused ? 'pulse' : 'pulse-outline',
+            History:   focused ? 'list' : 'list-outline',
+            Bills:     focused ? 'receipt' : 'receipt-outline',
+            Goals:     focused ? 'flag' : 'flag-outline',
+            Insights:  focused ? 'pulse' : 'pulse-outline',
           };
-          const name = map[route.name] || 'ellipse-outline';
-          return <Ionicons name={name} size={22} color={color} />;
+          return <Ionicons name={map[route.name] || 'ellipse-outline'} size={20} color={color} />;
         },
       })}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="History" component={HistoryScreen} />
-      <Tab.Screen
-        name="Add"
-        component={PlaceholderAdd}
-        options={{
-          tabBarButton: (props) => <AddTabButton {...props} />,
-          tabBarLabel: () => null,
-        }}
-        listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            e.preventDefault();
-            navigation.navigate('AddTransaction');
-          },
-        })}
-      />
+      <Tab.Screen name="Bills" component={BillsScreen} />
       <Tab.Screen name="Goals" component={GoalsScreen} />
       <Tab.Screen name="Insights" component={InsightsScreen} />
     </Tab.Navigator>
@@ -127,7 +107,6 @@ export default function RootNavigator() {
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
         <Stack.Screen name="Settings" component={SettingsScreen} />
-        <Stack.Screen name="Bills" component={BillsScreen} />
         <Stack.Screen
           name="BillForm"
           component={BillFormScreen}
@@ -146,25 +125,13 @@ export default function RootNavigator() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    position: 'absolute',
-    left: spacing.lg,
-    right: spacing.lg,
-    bottom: Platform.OS === 'ios' ? 24 : 16,
-    height: 68,
-    borderRadius: radius.xl,
-    borderTopWidth: 0,
-    elevation: 12,
-    paddingHorizontal: spacing.sm,
+    height: Platform.OS === 'ios' ? 78 : 62,
+    paddingTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    elevation: 0,
   },
   tabBarBg: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.bgElevated,
-    borderRadius: radius.xl,
-  },
-  tabBarBorder: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.bg,
   },
 });
